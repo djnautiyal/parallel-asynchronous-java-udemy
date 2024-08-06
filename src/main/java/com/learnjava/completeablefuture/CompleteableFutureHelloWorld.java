@@ -2,10 +2,8 @@ package com.learnjava.completeablefuture;
 
 import com.learnjava.service.HelloWorldService;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static com.learnjava.util.CommonUtil.*;
 import static com.learnjava.util.LoggerUtil.log;
@@ -161,6 +159,39 @@ public class CompleteableFutureHelloWorld {
                 .thenCompose(helloWorldService::worldFuture)
                 .thenApply(String::toUpperCase);
     }
+
+    public String anyOf(){
+        CompletableFuture<String> db = CompletableFuture.supplyAsync(() ->{
+            delay(4000);
+            log("response from DB");
+            return "hello world";
+        });
+
+        CompletableFuture<String> rest = CompletableFuture.supplyAsync(() ->{
+            delay(2000);
+            log("response from rest call");
+            return "hello world";
+        });
+
+        CompletableFuture<String> soap = CompletableFuture.supplyAsync(() ->{
+            delay(3000);
+            log("response from soap call");
+            return "hello world";
+        });
+
+
+        List<CompletableFuture<String>> cfList = List.of(db,rest,soap);
+        CompletableFuture<Object> cfAnyOf = CompletableFuture.anyOf(cfList.toArray(new CompletableFuture[cfList.size()]));
+
+        String result = (String)cfAnyOf.thenApply(v ->{
+            if(v instanceof  String)
+                return v;
+
+            return null;
+        }).join();
+        return result;
+    }
+
 
     public static void main(String[] args) {
         HelloWorldService hws = new HelloWorldService();

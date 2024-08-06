@@ -78,5 +78,13 @@ class CompleteableFutureHelloWorldTest {
         timeTaken(); stopWatchReset();
     }
 
+    @Test
+    void anyOf() {
+        String result = completeableFutureHelloWorld.anyOf();
+    
+        assertEquals("hello world", result);
+
+    }
+
 
 }
